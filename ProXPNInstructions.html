@@ -1,0 +1,199 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>ProXPN Tutorial</title>
+<style type="text/css">
+body {
+	background-color: #FC9;
+}
+table {
+	background-color: #000;
+	color: #FFF;
+}
+td:nth-child(1) {
+	color: #0F0;
+}
+code {
+	background-color: #FFF;
+	display: inline-block;
+}
+</style>
+</head>
+
+<body>
+<h1 align="center">Install and Configure OpenVPN with ProXPN account.</h1>
+<table width="290" border="0" cellpadding="0" cellspacing="0">
+  <tr>
+    <td width="15">$</td>
+    <td width="275">sudo apt-get update</td>
+  </tr>
+  <tr>
+    <td>$</td>
+    <td>sudo apt-get install openvpn</td>
+  </tr>
+  <tr>
+    <td>$</td>
+    <td>sudo service openvpn stop</td>
+  </tr>
+  <tr>
+    <td>$</td>
+    <td>sudo systemctl disable openvpn.service</td>
+  </tr>
+</table>
+<h2>Copy config from ProXPN via FTP</h2>
+<ol>
+  <li>Grap the <code>proxpn.conf</code> from this repository.</li>
+  <li>Make changes to the file to refelect the <code>remote</code> config line. <a href="#remote">See Below</a>.</li>
+  <li>Transfer to Raspberry Pi via ftp to home folder.</li>
+</ol>
+<table width="505" border="0">
+  <tr>
+    <td width="15">$</td>
+    <td width="480">sudo mv proxpn.conf /etc/openvpn/proxpn.conf</td>
+  </tr>
+</table>
+<table width="355">
+    <tr>
+      <td width="15">$</td>
+      <td width="340">sudo chown root:root /etc/openvpn/proxpn.conf</td>
+    </tr>
+</table>
+<table width="235" border="0">
+  <tr>
+    <td width="15">$</td>
+    <td width="220">sudo nano /etc/openvpn/auth.txt</td>
+  </tr>
+</table>
+first line <em><strong>Username</strong></em> for ProXPN<br />
+  second line <em><strong>Password</strong></em> for ProXPN<br />
+<em><strong>save file</strong></em></p>
+<p><table width="255" border="0">
+  <tr>
+    <td width="15">$</td>
+    <td width="230">sudo nano /etc/openvpn/route-up.sh</td>
+  </tr>
+</table>
+<code>#!/bin/sh<br />
+  iptables -t nat -I POSTROUTING -o tun0 -j MASQUERADE</code><br />
+<em><strong>save file</strong></em><strong></strong></p>
+<p><table width="240" border="0">
+  <tr>
+    <td width="15">$</td>
+    <td width="210">sudo nano /etc/openvpn/down.sh</td>
+  </tr>
+</table>
+<code>#!/bin/sh<br />
+  iptables -t nat -D POSTROUTING -o tun0 -j MASQUERADE</code><br />
+<em><strong>save file</strong></em><strong></strong></p>
+<p><table width="225" border="0">
+  <tr>
+    <td width="15">$</td>
+    <td width="200">sudo nano /etc/openvpn/vpn.sh</td>
+  </tr>
+</table>
+<code>sudo openvpn --client --config /etc/openvpn/proxpn.conf --script-security 2</code><br />
+<em><strong>save file</strong></em><strong></strong></p>
+<p><table width="290" border="0">
+  <tr>
+    <td width="15">$</td>
+    <td width="265">sudo chmod +x /etc/openvpn/down.sh</td>
+  </tr>
+  <tr>
+    <td>$</td>
+    <td>sudo chmod +x /etc/openvpn/route-up.sh</td>
+  </tr>
+  <tr>
+    <td>$</td>
+    <td>sudo chmod +x /etc/openvpn/vpn.sh</td>
+  </tr>
+</table></p>
+<p><table width="170" border="0">
+  <tr>
+    <td width="15">$</td>
+    <td width="150">sudo nano /etc/rc.local</td>
+  </tr>
+</table>
+<code>/etc/openvpn/vpn.sh</code><br />
+  before exit0<br />
+<em><strong>save file</strong></em><strong></strong></p>
+<p><table width="170" border="0">
+  <tr>
+    <td width="15">$</td>
+    <td width="145">sudo shutdown -r now</td>
+  </tr>
+</table>
+to reboot</p>
+<p>once back up
+<table width="60" border="0">
+  <tr>
+    <td width="15">$</td>
+    <td width="45">ifconfig</td>
+  </tr>
+</table>
+or
+<table width="60" border="0">
+  <tr>
+    <td width="15">$</td>
+    <td width="45">ip a</td>
+  </tr>  
+</table>
+you should see <em>tun0</em></p>
+<p><table width="115" border="0">
+  <tr>
+    <td width="15">$</td>
+    <td width="100">./speedtest-cli</td>
+  </tr>
+</table>
+from <a href="https://github.com/sivel/speedtest-cli" target="new">https://github.com/sivel/speedtest-cli</a><br />
+to check ip, route, ping</p>
+<p>Once you verify you are not coming from your own ip, Bob's your uncle.</p>
+<hr /><a name="remote"></a> 
+<p>For the remote config line of ProXPN.conf</p>
+<p>All exit nodes use port <code>443</code><br />
+  ex. for Miami using udp:<br />
+  <code>remote 196.52.22.2 443 udp</code></p>
+<pre>
+   TCP_EXIT_NODES[NYC]=196.52.17.0
+   TCP_EXIT_NODES[Miami]=192.240.98.3
+   TCP_EXIT_NODES[Seattle]=50.7.74.99
+   TCP_EXIT_NODES[Chicago]=50.7.1.243
+   TCP_EXIT_NODES[Toronto]=162.253.128.69
+   TCP_EXIT_NODES[Netherlands]=213.179.213.2
+   TCP_EXIT_NODES[Stockholm]=94.185.84.34
+   TCP_EXIT_NODES[London]=78.157.207.131
+   TCP_EXIT_NODES[Sydney]=45.32.241.118
+   TCP_EXIT_NODES[Frankfurt]=50.7.89.131
+   TCP_EXIT_NODES[Frankfurt2]=37.123.112.35
+   TCP_EXIT_NODES[SanJose]=179.48.248.104
+   
+   UDP_EXIT_NODES[FREE]=196.52.21.65
+   UDP_EXIT_NODES[NYC]=196.52.16.2
+   UDP_EXIT_NODES[NYC2]=196.52.17.68
+   UDP_EXIT_NODES[Miami]=196.52.22.2
+   UDP_EXIT_NODES[Miami2]=196.52.23.66
+   UDP_EXIT_NODES[Seattle]=196.52.18.2
+   UDP_EXIT_NODES[Seattle2]=196.52.19.241
+   UDP_EXIT_NODES[Chicago]=50.7.1.67
+   UDP_EXIT_NODES[Chicago2]=196.52.21.225
+   UDP_EXIT_NODES[Toronto]=162.253.128.67
+   UDP_EXIT_NODES[HongKong]=43.251.159.25
+   UDP_EXIT_NODES[HongKong2]=103.194.43.131
+   UDP_EXIT_NODES[HongKong3]=103.194.43.26
+   UDP_EXIT_NODES[LA]=188.172.214.196
+   UDP_EXIT_NODES[Netherlands]=213.179.212.2
+   UDP_EXIT_NODES[Netherlands2]=213.179.208.146
+   UDP_EXIT_NODES[Stockholm]=94.185.84.42
+   UDP_EXIT_NODES[London]=78.157.207.139
+   UDP_EXIT_NODES[Bucharest]=89.46.102.14
+   UDP_EXIT_NODES[Sydney]=45.32.191.165
+   UDP_EXIT_NODES[Frankfurt]=50.7.88.172
+   UDP_EXIT_NODES[Frankfurt2]=37.123.112.69
+   UDP_EXIT_NODES[Frankfurt3]=185.41.141.171
+   UDP_EXIT_NODES[Paris]=151.236.21.12
+   UDP_EXIT_NODES[Singapore]=191.101.242.121
+   UDP_EXIT_NODES[SanJose]=179.48.248.105
+   UDP_EXIT_NODES[Hafnarfjordur]=37.235.49.195
+   UDP_EXIT_NODES[Zurich]=178.209.52.135</pre>
+</body>
+</html>
