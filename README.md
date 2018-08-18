@@ -46,7 +46,7 @@
 </table>
 
 first line **Username** for ProXPN  
-second line **Password** for ProXPN
+second line **Password** for ProXPN  
 **save file**
 
 <table width="255" border="0">
