@@ -1,4 +1,4 @@
-there is a `FREE` option if you only have a free account and are not Premium.  
+There is a `FREE` option if you only have a free account and are not Premium.  
 `remote 196.52.21.65 443 udp`
 
 # Install and Configure OpenVPN with ProXPN account.
