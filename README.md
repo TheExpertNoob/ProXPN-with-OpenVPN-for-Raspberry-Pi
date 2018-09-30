@@ -155,6 +155,7 @@ Once you verify you are not coming from your own ip, Bob's your uncle.
 - - -
  
 ## For the remote config line of ProXPN.conf
+You can also get updated configs from <a href="http://proxpn.com/updater/locations.html">here.</a>
 All exit nodes use port `443`
 
 ex. for Miami using udp:
